@@ -25,7 +25,7 @@ int start_shell(char** arg){
     }
     if(pid == 0){ //This is the son
     	fprintf("Child : %d",pid);
-    	if(execvp(arg[0],arg)){
+    	if(execvp(arg[0],arg == -1)){
     		int errnum = errno;
         	perror("Instruction failed");
             fprintf(stderr, "Value of errno: %d\n",errno);
