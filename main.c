@@ -9,6 +9,8 @@
 
 int start_shell(char** arg){
 	// argv[0] = (char *) NULL ; Must be null terminated
+	// 
+	// 
 	pid_t pid;
 	int status;
 
@@ -22,7 +24,7 @@ int start_shell(char** arg){
         exit(1);
     }
     if(pid == 0){ //This is the son
-    	
+    	fprintf("Child : %d",pid);
     	if(execvp(arg[0],arg)){
     		int errnum = errno;
         	perror("Instruction failed");
@@ -34,7 +36,7 @@ int start_shell(char** arg){
     }
 
     else{//This is the father
-
+    	fprintf("Parent :%d",pid);
     	while(true){
 		    wait(&status);
     		if(WIFEXITED(status))
@@ -45,12 +47,14 @@ int start_shell(char** arg){
     return 1;
 }
 
-int main(int argc, char* argv[]){
+int main(/*int argc, char* argv[]*/){
 
+	char* args[2];
+	args[0] = "ls";
+	args[1] = (char*) NULL;
 
+	start_shell(args);
 
-
-
-
+	return 0;
 
 }
