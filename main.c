@@ -24,8 +24,8 @@ int start_shell(char** arg){
         exit(1);
     }
     if(pid == 0){ //This is the son
-    	fprintf("Child : %d",pid);
-    	if(execvp(arg[0],arg == -1)){
+   		printf("Child : %d \n",pid);
+    	if(execvp(arg[0],arg) == -1){
     		int errnum = errno;
         	perror("Instruction failed");
             fprintf(stderr, "Value of errno: %d\n",errno);
@@ -36,7 +36,7 @@ int start_shell(char** arg){
     }
 
     else{//This is the father
-    	fprintf("Parent :%d",pid);
+    	printf("Parent : %d \n",pid);
     	while(true){
 		    wait(&status);
     		if(WIFEXITED(status))
@@ -49,9 +49,10 @@ int start_shell(char** arg){
 
 int main(/*int argc, char* argv[]*/){
 
-	char* args[2];
+	char* args[3];
 	args[0] = "ls";
-	args[1] = (char*) NULL;
+	args[1] = "-l";
+	args[2] = (char*) NULL;
 
 	start_shell(args);
 
