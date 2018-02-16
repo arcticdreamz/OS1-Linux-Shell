@@ -61,7 +61,13 @@ int main(){
         // **3.1** : The command is cd
         if(strcmp(tokens[0], "cd")){
 
+            // **3.1.1** : There is only "cd"
+            if(tokens[1] == NULL)
+                tokens[1] = getenv("HOME");
+
+            // **3.1.2** : 
         }
+
 
         // **3.2** : The command isn't a built-in command
         arg[0] = "ls";
