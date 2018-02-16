@@ -44,7 +44,7 @@ int main(){
 /**************************************************************************************
 
 
-TU DOIS T'OCCUPER DE CETTE PARTIE ANTOINE : LE PARSING
+TU DOIS T'OCCUPER DE CETTE PARTIE ANTOINE : LE PARSING !!!!!
         arg[0] = command; ne marche pas, je ne sais pas pq
         Genre le path est le même, mais il ne veut pas etre exécuté
 
