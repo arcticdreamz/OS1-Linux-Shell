@@ -17,47 +17,54 @@ int main(){
     char command[255];
     strcpy(command,"");
     int returnvalue;
-
+    char* token;
+    char* tokens[256];
+    int i = 0;
 
     pid_t pid;
     int status;
 
     while(!stop){
 
+        //Prompt
         printf("> ");
         fflush(stdout);
 
 
-        // getting the input from stdin
+        /*************************************User interaction***************************/
 
-        // 1) Exit the shell (using Ctrl+D or exit())
+        // **1** : User wants to quit (using Ctrl+D or exit())
         if(fgets(command,256,stdin) == NULL || !strcmp(command,"exit\n")){
             stop = true;
             break;
         }
-        // Rerun the loop if we press 'Enter'
+
+
+        // **2** : User presses "Enter"
         if(!strcmp(command,"\n"))
             continue;
-            
-        printf("command : %s\n",command);
-
-/**************************************************************************************
 
 
-TU DOIS T'OCCUPER DE CETTE PARTIE ANTOINE : LE PARSING !!!!!
-        arg[0] = command; ne marche pas, je ne sais pas pq
-        Genre le path est le même, mais il ne veut pas etre exécuté
+        // **3** : User enters a command line
+        token = strtok(command, "\n");
+        token = strok(command, " ");
 
-**************************************************************************************/
+        while(token != NULL){
+            tokens[i] = token;
+            i++;
+
+            token = strok(NULL, " ");
+        }
+        tokens[i] = NULL;
+
+
+        // **3.1** : The command is cd
+
+
+        // **3.2** : The command isn't a built-in command
         arg[0] = "ls";
         printf("arg[0] : %s \n",arg[0]);
         arg[1] = (char*) NULL;
-
-        //2) The user enters a command
-            // 2).1 : the command is cd
-
-        // 3)the command isn't a built-in command
-
 
         pid = fork();
 
@@ -131,6 +138,13 @@ TU DOIS T'OCCUPER DE CETTE PARTIE ANTOINE : LE PARSING !!!!!
     	    wait(&status);
             returnvalue = WEXITSTATUS(status);
             printf("%d",returnvalue);
+
+            /*//Wait for the son to end its process before continuing with the father
+            wait (&status) ;
+            if (WIFEXITED (status))
+                printf ("Son ended normally: status = %d\n", WEXITSTATUS (status));
+            else
+                printf ("Son ended anormally\n") ;*/
         	
         }
 
