@@ -59,7 +59,9 @@ int main(){
 
 
         // **3.1** : The command is cd
+        if(strcmp(tokens[0], "cd")){
 
+        }
 
         // **3.2** : The command isn't a built-in command
         arg[0] = "ls";
