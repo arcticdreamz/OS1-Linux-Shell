@@ -30,9 +30,6 @@ int main(){
         printf("> ");
         fflush(stdout);
 
-
-        /*************************************User interaction***************************/
-
         // **1** : User wants to quit (using Ctrl+D or exit())
         if(fgets(command,256,stdin) == NULL || !strcmp(command,"exit\n")){
             stop = true;
@@ -65,7 +62,9 @@ int main(){
             if(tokens[1] == NULL)
                 tokens[1] = getenv("HOME");
 
-            // **3.1.2** : 
+            // **3.1.2** : There is a path to cd
+            else if(chdir(tokens[1]) != 0)
+                fprintf((stderr), "bad path entered to cd \n", );
         }
 
 
