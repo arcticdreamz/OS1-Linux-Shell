@@ -19,10 +19,23 @@ int main(){
     int returnvalue;
     char* token;
     char* tokens[256];
-    int i = 0;
+    int token_cnt = 0;
+    char* path;
+    char* paths[20];
+    int path_cnt = 0;
 
     pid_t pid;
     int status;
+
+    // Get all the paths in an array
+    path = getenv("PATH");
+    path = strtok(path, ":");
+    while(path != NULL){
+        paths[path_cnt] = path;
+        path_cnt++;
+        path = strtok(NULL, ":");
+    }
+
 
     while(!stop){
 
@@ -47,12 +60,12 @@ int main(){
         token = strok(command, " ");
 
         while(token != NULL){
-            tokens[i] = token;
-            i++;
+            tokens[token_cnt] = token;
+            token_cnt++;
 
             token = strok(NULL, " ");
         }
-        tokens[i] = NULL;
+        tokens[token_cnt] = NULL;
 
 
         // **3.1** : The command is cd
