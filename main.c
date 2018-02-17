@@ -57,13 +57,13 @@ int main(){
 
         // **3** : User enters a command line
         token = strtok(command, "\n");
-        token = strok(command, " ");
+        token = strtok(command, " ");
 
         while(token != NULL){
             tokens[token_cnt] = token;
             token_cnt++;
 
-            token = strok(NULL, " ");
+            token = strtok(NULL, " ");
         }
         tokens[token_cnt] = NULL;
 
@@ -77,7 +77,7 @@ int main(){
 
             // **3.1.2** : There is a path to cd
             else if(chdir(tokens[1]) != 0)
-                fprintf((stderr), "bad path entered to cd \n", );
+                fprintf((stderr), "bad path entered to cd \n");
         }
 
 
