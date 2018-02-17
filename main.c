@@ -11,9 +11,9 @@
 /*************************************Prototypes*********************************************
 *
 ********************************************************************************************/
-char** split_command(char* command);
+char** split_command(char* command, char** args);
 int getPaths(char** paths);
-char* cd_cmd_whitespace(char** args);
+char* cd_cmd_whitespace(char** args, char c);
 
 
 
@@ -27,13 +27,13 @@ char* cd_cmd_whitespace(char** args);
 * RETURN : an array of string reprensenting each token entered by the user
 *
 *******************************************************************************************/
-char** split_command(char* command){
-    int token_cnt = 0;
-    char* token;
-    char** tokens = malloc(sizeof(char*));
+char** split_command(char* command, char** args){
 
-    if(!tokens){
-        fprintf((stderr), "Allocation of tokens array failed.\n");
+    int args_cnt = 0;
+    char* token;
+
+    if(!args){
+        fprintf((stderr), "Allocation of args array failed.\n");
         exit(1);
     }
     
@@ -41,16 +41,16 @@ char** split_command(char* command){
     token = strtok(command, " ");
 
     while(token != NULL){
-        tokens = realloc(tokens, (token_cnt+1)*sizeof(char*)); //Realloc space for each new token
+        args = realloc(args, (args_cnt+1)*sizeof(char*)); //Realloc space for each new token
 
-        tokens[token_cnt] = token;
-        token_cnt++;
+        args[args_cnt] = token;
+        args_cnt++;
 
         token = strtok(NULL, " ");
     }
-    tokens[token_cnt] = (char *) NULL;
+    args[args_cnt] = (char *) NULL;
 
-    return tokens;
+    return args;
 }
 
 
@@ -91,21 +91,20 @@ int get_paths(char** paths) {
 * Deal with the changing directory of a folder with whitespaces.
 *
 * ARGUMENT :
-*   - args : an array containing all the tokens of the command line entered by the user
+*   - args : an array containing all the args of the command line entered by the user
 *
 * RETURN : the path of the directory to go
 *
 *******************************************************************************************/
-char* cd_cmd_whitespace(char** args){
+char* cd_cmd_whitespace(char** args, char c){
 
-    char c = args[1][0];
     int j = 1;
 
     char* tmp_dir;
     strcpy(tmp_dir, getcwd(NULL,0));
     
 
-    args[1] = strtok(args[1], (char*)c);
+    args[1] = strtok(args[1], (char*) c);
     strcat(tmp_dir, "/");
 
     while(args[j] != NULL){
@@ -155,7 +154,8 @@ int main(int argc, char** argv){
             continue;
 
         //User enters a command line
-        args = split_command(command);
+        char** args = malloc(sizeof(char*));
+        split_command(command, args);
 
 
         //The command is cd
@@ -177,12 +177,16 @@ int main(int argc, char** argv){
             //Case 3 : cd "My directory" ; cd 'My Directory'
             else if (args[1][0] == '"' || args[1][0] == '\''){
 
-                args[1] = cd_cmd_whitespace(args);
+                char c = args[1][0];
+                args[1] = cd_cmd_whitespace(args, c);
 
            }
 
             //Case 4 : cd My\ Directory
-            else if (args[1][strlen(args[1])-1]== '\\'){
+            else if (args[1][strlen(args[1])-1] == '\\'){
+
+                char c = args[1][strlen(args[1])-1];
+                args[1] = cd_cmd_whitespace(args, c);
 
             }
 
@@ -252,9 +256,9 @@ int main(int argc, char** argv){
             printf("%d",returnvalue);
             
         }
-
-
     }
+
+    free(args);
 
     return 0;
 
