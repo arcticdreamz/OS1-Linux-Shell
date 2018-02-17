@@ -70,7 +70,29 @@ int getPaths(char** tokens, char** paths) {
     return nb_paths;
 }
 
+char* cd_cmd(char** args){
 
+    // Case 1 : "cd"
+    if(args[1] == NULL || !strcmp(args[1],"~"))
+        args[1] = getenv("HOME");
+
+    //Case 2 : "cd .."
+    else if(!strcmp(args[1],"..")){
+        char* new_dir = strrchr(args[1],'/');
+        if(new_dir != NULL)
+            *new_dir = '\0';
+    }
+
+    //Case 3 : "cd /"
+    else if(!strcmp(args[1],"/")){
+
+    }
+
+    //Case 4 : "cd x y"
+        
+
+    return args[1];
+}
 
 
 
@@ -95,10 +117,10 @@ int main(int argc, char** argv){
         //char* command = read_command();
 
         char* command;
-        fgets(command,256,stdin);
 
         //User wants to quit (using Ctrl+D or exit())
-        if(command == NULL || !strcmp(command,"exit\n")){
+        if(fgets(command,256,stdin) == NULL || !strcmp(command,"exit\n")){
+            printf("\n");
             stop = true;
             break;
         }
@@ -115,21 +137,16 @@ int main(int argc, char** argv){
         //The command is cd
         if(!strcmp(args[0], "cd")){
 
-            // **3.1.1** : There is only "cd"
-            if(args[1] == NULL)
-                args[1] = getenv("HOME");
+            args[1] = cd_cmd(args);
 
-            // **3.1.2** : There is a path to cd
-            else if(chdir(args[1]) != 0)
-                fprintf((stderr), "bad path entered to cd \n");
+            printf("%d",chdir(args[1]));
+            continue;
         }
 
-        //printf("%d",chdir(args[1]));
+        
 
 
-        // **3.2** : The command isn't a built-in command
-
-
+        //The command isn't a built-in command
         pid = fork();
 
         if(pid < 0){
