@@ -7,35 +7,59 @@
 #include <unistd.h>
 #include <errno.h>
 
+/***********************************FUNCTIONS***************************************/
+char* read_command(){
+    char* command = NULL;
 
-int main(){
+    fgets(command,256,stdin);
+
+    return command;
+}
+
+
+
+char** split_command(char* command){
+    int token_cnt = 0;
+    char* token;
+    char** tokens = malloc(sizeof(char*));
+
+    if(!token){
+        fprintf((stderr), "Allocation of tokens array failed.\n");
+        exit(1);
+    }
+    
+    token = strtok(command, "\n");
+    token = strtok(command, " ");
+
+    while(token != NULL){
+        tokens = realloc(tokens, (token_cnt+1)*sizeof(char*)); //Realloc space for each new token
+
+        tokens[token_cnt] = token;
+        token_cnt++;
+
+        token = strtok(NULL, " ");
+    }
+    tokens[token_cnt] = NULL;
+
+    return tokens;
+
+}
+
+
+
+
+/******************************************MAIN**********************************/
+int main(int argc, char** argv){
 
     char* arg[2];
 
-
     bool stop = false;
-    char command[255];
-    strcpy(command,"");
+    
     int returnvalue;
-    char* token;
-    char* tokens[256];
-    int token_cnt = 0;
-    char* path;
-    char* paths[20];
-    int path_cnt = 0;
-
+    
     pid_t pid;
     int status;
-
-    // Get all the paths in an array
-    path = getenv("PATH");
-    path = strtok(path, ":");
-    while(path != NULL){
-        paths[path_cnt] = path;
-        path_cnt++;
-        path = strtok(NULL, ":");
-    }
-
+    
 
     while(!stop){
 
@@ -43,32 +67,25 @@ int main(){
         printf("> ");
         fflush(stdout);
 
-        // **1** : User wants to quit (using Ctrl+D or exit())
-        if(fgets(command,256,stdin) == NULL || !strcmp(command,"exit\n")){
+        //Read the command line
+        char* command = read_command();
+
+        //User wants to quit (using Ctrl+D or exit())
+        if(command == NULL || !strcmp(command,"exit\n")){
             stop = true;
             break;
         }
 
-
-        // **2** : User presses "Enter"
+        //User presses "Enter"
         if(!strcmp(command,"\n"))
             continue;
 
 
-        // **3** : User enters a command line
-        token = strtok(command, "\n");
-        token = strtok(command, " ");
-
-        while(token != NULL){
-            tokens[token_cnt] = token;
-            token_cnt++;
-
-            token = strtok(NULL, " ");
-        }
-        tokens[token_cnt] = NULL;
+        //User enters a command line
+        char** args = split_command(command);
 
 
-        // **3.1** : The command is cd
+        //The command is cd
         if(strcmp(tokens[0], "cd")){
 
             // **3.1.1** : There is only "cd"
