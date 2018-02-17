@@ -111,18 +111,18 @@ int main(int argc, char** argv){
 
 
         //The command is cd
-        if(strcmp(tokens[0], "cd")){
+        if(strcmp(args[0], "cd")){
 
             // **3.1.1** : There is only "cd"
-            if(tokens[1] == NULL)
-                tokens[1] = getenv("HOME");
+            if(args[1] == NULL)
+                args[1] = getenv("HOME");
 
             // **3.1.2** : There is a path to cd
-            else if(chdir(tokens[1]) != 0)
+            else if(chdir(args[1]) != 0)
                 fprintf((stderr), "bad path entered to cd \n");
         }
 
-        //printf("%d",chdir(tokens[1]));
+        //printf("%d",chdir(args[1]));
 
 
         // **3.2** : The command isn't a built-in command
@@ -144,7 +144,7 @@ int main(int argc, char** argv){
 
             char** paths = malloc(sizeof(char*)); 
 
-            int nb_paths = getPaths(tokens,paths);
+            int nb_paths = getPaths(args,paths);
 
             int j = 0;
 
@@ -152,7 +152,7 @@ int main(int argc, char** argv){
                 char path[256] = "";
                 strcat(path,paths[j]);
                 strcat(path,"/");
-                strcat(path,tokens[0]);
+                strcat(path,args[0]);
                 //printf("Path %d : %s \n",j,path);
 
 
@@ -162,7 +162,7 @@ int main(int argc, char** argv){
 
                 if(access(path,X_OK) == 0){
                     //printf("Executable path: %s \n",path);
-                    if(execv(path,tokens) == -1){
+                    if(execv(path,args) == -1){
                         int errnum = errno;
                         perror("Instruction failed");
                         fprintf(stderr, "Value of errno: %d\n",errno);
