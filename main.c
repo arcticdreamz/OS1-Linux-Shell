@@ -103,8 +103,6 @@ char* cd_cmd_whitespace(char** args, char c){
     char* tmp_dir;
     strcpy(tmp_dir, getcwd(NULL,0));
     
-
-    args[1] = strtok(args[1], (char*) c);
     strcat(tmp_dir, "/");
 
     while(args[j] != NULL){
@@ -178,6 +176,7 @@ int main(int argc, char** argv){
             else if (args[1][0] == '"' || args[1][0] == '\''){
 
                 char c = args[1][0];
+                args[1] = strtok(args[1], (char*) c);
                 args[1] = cd_cmd_whitespace(args, c);
 
            }
