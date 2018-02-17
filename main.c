@@ -9,14 +9,15 @@
 
 
 /***********************************FUNCTIONS***************************************/
+/*
 char* read_command(){
-    char* command = NULL;
 
+    char* command;
     fgets(command,256,stdin);
 
     return command;
 }
-
+*/
 
 
 char** split_command(char* command){
@@ -24,7 +25,7 @@ char** split_command(char* command){
     char* token;
     char** tokens = malloc(sizeof(char*));
 
-    if(!token){
+    if(!tokens){
         fprintf((stderr), "Allocation of tokens array failed.\n");
         exit(1);
     }
@@ -40,7 +41,7 @@ char** split_command(char* command){
 
         token = strtok(NULL, " ");
     }
-    tokens[token_cnt] = NULL;
+    tokens[token_cnt] = (char *) NULL;
 
     return tokens;
 }
@@ -50,7 +51,7 @@ char** split_command(char* command){
 int getPaths(char** tokens, char** paths) {
 
     char* pathstring = getenv("PATH"); //get the $PATH environment variable
-    //printf(" All Paths : %s \n",pathstring);
+    printf(" All Paths : %s \n",pathstring);
 
     int nb_paths = 0;
 
@@ -60,7 +61,7 @@ int getPaths(char** tokens, char** paths) {
         paths = realloc(paths,(nb_paths+1)*sizeof(char*)); //For each new found path, increase the array size
         paths[nb_paths] = path;
         
-        //printf("Paths[%d]  : %s \n",nb_paths,paths[nb_paths]);
+        printf("Paths[%d]  : %s \n",nb_paths,paths[nb_paths]);
 
         path = strtok(NULL,":"); //Parse the array for the next path delimited by ":"
         nb_paths++;
@@ -75,8 +76,6 @@ int getPaths(char** tokens, char** paths) {
 
 /******************************************MAIN**********************************/
 int main(int argc, char** argv){
-
-    char* arg[2];
 
     bool stop = false;
     
@@ -93,8 +92,11 @@ int main(int argc, char** argv){
         fflush(stdout);
 
         //Read the command line
-        char* command = read_command();
+        //char* command = read_command();
 
+        char* command;
+        fgets(command,256,stdin);
+        
         //User wants to quit (using Ctrl+D or exit())
         if(command == NULL || !strcmp(command,"exit\n")){
             stop = true;
@@ -153,15 +155,15 @@ int main(int argc, char** argv){
                 strcat(path,paths[j]);
                 strcat(path,"/");
                 strcat(path,args[0]);
-                //printf("Path %d : %s \n",j,path);
+                printf("Path %d : %s \n",j,path);
 
 
                 j++;
             
-                //printf("access of path %d : %d \n",j,access(path,X_OK));
+                printf("access of path %d : %d \n",j,access(path,X_OK));
 
                 if(access(path,X_OK) == 0){
-                    //printf("Executable path: %s \n",path);
+                    printf("Executable path: %s \n",path);
                     if(execv(path,args) == -1){
                         int errnum = errno;
                         perror("Instruction failed");
