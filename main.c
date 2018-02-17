@@ -8,18 +8,25 @@
 #include <errno.h>
 
 
-/***********************************FUNCTIONS***************************************/
-/*
-char* read_command(){
-
-    char* command;
-    fgets(command,256,stdin);
-
-    return command;
-}
-*/
+/*************************************Prototypes*********************************************
+*
+********************************************************************************************/
+char** split_command(char* command);
+int getPaths(char** paths);
+char* cd_cmd_whitespace(char** args);
 
 
+
+/*************************************split_command*****************************************
+*
+* Split the command line entered by the user
+*
+* ARGUMENT :
+*   - command : a string entered by the user as command line
+*
+* RETURN : an array of string reprensenting each token entered by the user
+*
+*******************************************************************************************/
 char** split_command(char* command){
     int token_cnt = 0;
     char* token;
@@ -47,21 +54,29 @@ char** split_command(char* command){
 }
 
 
-
-int getPaths(char** tokens, char** paths) {
+/*************************************get_paths****************************************
+*
+* Split the full path into all the paths and get the number of total paths
+*
+* ARGUMENT :
+*   - paths : an array to contain all the paths
+*
+* RETURN : the number of paths
+*
+*******************************************************************************************/
+int get_paths(char** paths) {
 
     char* pathstring = getenv("PATH"); //get the $PATH environment variable
-    //printf(" All Paths : %s \n",pathstring);
 
     int nb_paths = 0;
 
     char* path = strtok(pathstring,":"); //Parse the string for a path delimited by ":"
 
     while(path != NULL){
+
         paths = realloc(paths,(nb_paths+1)*sizeof(char*)); //For each new found path, increase the array size
         paths[nb_paths] = path;
         
-        //printf("Paths[%d]  : %s \n",nb_paths,paths[nb_paths]);
 
         path = strtok(NULL,":"); //Parse the array for the next path delimited by ":"
         nb_paths++;
@@ -70,38 +85,53 @@ int getPaths(char** tokens, char** paths) {
     return nb_paths;
 }
 
-char* cd_cmd(char** args){
 
-    // Case 1 : "cd"
-    if(args[1] == NULL || !strcmp(args[1],"~"))
-        args[1] = getenv("HOME");
+/*************************************cd_cmd_whitespace************************************
+*
+* Deal with the changing directory of a folder with whitespaces.
+*
+* ARGUMENT :
+*   - args : an array containing all the tokens of the command line entered by the user
+*
+* RETURN : the path of the directory to go
+*
+*******************************************************************************************/
+char* cd_cmd_whitespace(char** args){
 
-    //Case 2 : "cd .."
-    else if(!strcmp(args[1],"..")){
-        char* new_dir = strrchr(args[1],'/');
-        if(new_dir != NULL)
-            *new_dir = '\0';
-    }
+    char c = args[1][0];
+    int j = 1;
 
-    //Case 3 : "cd /"
-    else if(!strcmp(args[1],"/")){
+    char* tmp_dir;
+    strcpy(tmp_dir, getcwd(NULL,0));
+    
 
-    }
+    args[1] = strtok(args[1], (char*)c);
+    strcat(tmp_dir, "/");
 
-    //Case 4 : "cd x y"
+    while(args[j] != NULL){
+
+        if (args[j][strlen(args[j])-1] == c)
+            args[j][strlen(args[j])-1] = 0;
         
+        if (j!=1)
+            strcat(tmp_dir, " ");
+        strcat(tmp_dir,args[j++]);
+    }
 
-    return args[1];
+    return tmp_dir;
+
 }
 
 
-
-/******************************************MAIN**********************************/
+/******************************************main**********************************************/
 int main(int argc, char** argv){
 
     bool stop = false;
     
     int returnvalue;
+
+    char command[255];
+    char** args;
     
     pid_t pid;
     int status;
@@ -113,13 +143,8 @@ int main(int argc, char** argv){
         printf("> ");
         fflush(stdout);
 
-        //Read the command line
-        //char* command = read_command();
-
-        char* command;
-
         //User wants to quit (using Ctrl+D or exit())
-        if(fgets(command,256,stdin) == NULL || !strcmp(command,"exit\n")){
+        if(fgets(command,sizeof(command),stdin) == NULL || !strcmp(command,"exit\n")){
             printf("\n");
             stop = true;
             break;
@@ -129,15 +154,38 @@ int main(int argc, char** argv){
         if(!strcmp(command,"\n"))
             continue;
 
-
         //User enters a command line
-        char** args = split_command(command);
+        args = split_command(command);
 
 
         //The command is cd
         if(!strcmp(args[0], "cd")){
 
-            args[1] = cd_cmd(args);
+            // Case 1 : cd
+            if(args[1] == NULL || !strcmp(args[1],"~"))
+                args[1] = getenv("HOME");
+
+            //Case 2 : cd ..
+            else if(!strcmp(args[1],"..")){
+
+                char* new_dir = strrchr(args[1],'/');
+
+                if(new_dir != NULL)
+                    *new_dir = '\0';
+            }
+
+            //Case 3 : cd "My directory" ; cd 'My Directory'
+            else if (args[1][0] == '"' || args[1][0] == '\''){
+
+                args[1] = cd_cmd_whitespace(args);
+
+           }
+
+            //Case 4 : cd My\ Directory
+            else if (args[1][strlen(args[1])-1]== '\\'){
+
+            }
+
 
             printf("%d",chdir(args[1]));
             continue;
@@ -149,6 +197,7 @@ int main(int argc, char** argv){
         //The command isn't a built-in command
         pid = fork();
 
+        //Error
         if(pid < 0){
             int errnum = errno;
 
@@ -157,11 +206,13 @@ int main(int argc, char** argv){
             fprintf(stderr, "Error: %s \n",strerror(errnum));
             exit(1);
         }
-        if(pid == 0){ //This is the son
+
+        //This is the son
+        if(pid == 0){ 
 
             char** paths = malloc(sizeof(char*)); 
 
-            int nb_paths = getPaths(args,paths);
+            int nb_paths = get_paths(paths);
 
             int j = 0;
 
@@ -194,7 +245,8 @@ int main(int argc, char** argv){
             exit(1);
         }
 
-        else{//This is the father
+        //This is the father
+        else{
             wait(&status);
             returnvalue = WEXITSTATUS(status);
             printf("%d",returnvalue);
