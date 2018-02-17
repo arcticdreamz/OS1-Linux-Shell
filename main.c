@@ -51,7 +51,7 @@ char** split_command(char* command){
 int getPaths(char** tokens, char** paths) {
 
     char* pathstring = getenv("PATH"); //get the $PATH environment variable
-    printf(" All Paths : %s \n",pathstring);
+    //printf(" All Paths : %s \n",pathstring);
 
     int nb_paths = 0;
 
@@ -61,7 +61,7 @@ int getPaths(char** tokens, char** paths) {
         paths = realloc(paths,(nb_paths+1)*sizeof(char*)); //For each new found path, increase the array size
         paths[nb_paths] = path;
         
-        printf("Paths[%d]  : %s \n",nb_paths,paths[nb_paths]);
+        //printf("Paths[%d]  : %s \n",nb_paths,paths[nb_paths]);
 
         path = strtok(NULL,":"); //Parse the array for the next path delimited by ":"
         nb_paths++;
@@ -96,7 +96,7 @@ int main(int argc, char** argv){
 
         char* command;
         fgets(command,256,stdin);
-        
+
         //User wants to quit (using Ctrl+D or exit())
         if(command == NULL || !strcmp(command,"exit\n")){
             stop = true;
@@ -113,7 +113,7 @@ int main(int argc, char** argv){
 
 
         //The command is cd
-        if(strcmp(args[0], "cd")){
+        if(!strcmp(args[0], "cd")){
 
             // **3.1.1** : There is only "cd"
             if(args[1] == NULL)
@@ -142,8 +142,6 @@ int main(int argc, char** argv){
         }
         if(pid == 0){ //This is the son
 
-            printf("Child : %d \n",pid);
-
             char** paths = malloc(sizeof(char*)); 
 
             int nb_paths = getPaths(args,paths);
@@ -155,15 +153,15 @@ int main(int argc, char** argv){
                 strcat(path,paths[j]);
                 strcat(path,"/");
                 strcat(path,args[0]);
-                printf("Path %d : %s \n",j,path);
+                //printf("Path %d : %s \n",j,path);
 
 
                 j++;
             
-                printf("access of path %d : %d \n",j,access(path,X_OK));
+                //printf("access of path %d : %d \n",j,access(path,X_OK));
 
                 if(access(path,X_OK) == 0){
-                    printf("Executable path: %s \n",path);
+                    //printf("Executable path: %s \n",path);
                     if(execv(path,args) == -1){
                         int errnum = errno;
                         perror("Instruction failed");
@@ -180,7 +178,6 @@ int main(int argc, char** argv){
         }
 
         else{//This is the father
-            printf("Parent : %d \n",pid);
             wait(&status);
             returnvalue = WEXITSTATUS(status);
             printf("%d",returnvalue);
