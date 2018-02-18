@@ -255,7 +255,7 @@ int main()
             //CASE 2.1.2 : cd "a b"
             else if (arguments[1][0] =='"')
             {
-                arguments[1] =strtok(arguments[1],"\"");
+                arguments[1] = strtok(arguments[1],"\"");
                 i=1;
                 strcat(currDirectory, "/");
                 while(arguments[i]!=NULL)

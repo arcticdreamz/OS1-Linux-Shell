@@ -22,9 +22,9 @@ char* cd_cmd_whitespace(char** args, char c);
 * Split the command line entered by the user
 *
 * ARGUMENT :
-*   - command : a string entered by the user as command line
+*   - command : a string entered by the user as a command line
 *
-* RETURN : an array of string reprensenting each token entered by the user
+* RETURN : an array of strings reprensenting each token entered by the user
 *
 *******************************************************************************************/
 char** split_command(char* command, char** args){
@@ -41,7 +41,7 @@ char** split_command(char* command, char** args){
     token = strtok(command, " ");
 
     while(token != NULL){
-        args = realloc(args, (args_cnt+1)*sizeof(char*)); //Realloc space for each new token
+        args = realloc(args, (args_cnt+1)*sizeof(char*)); //Realloc space for each new argument
 
         args[args_cnt] = token;
         args_cnt++;
@@ -56,7 +56,7 @@ char** split_command(char* command, char** args){
 
 /*************************************get_paths****************************************
 *
-* Split the full path into all the paths and get the number of total paths
+* Split the full path into all possible paths and get the number of total paths
 *
 * ARGUMENT :
 *   - paths : an array to contain all the paths
@@ -88,7 +88,7 @@ int get_paths(char** paths) {
 
 /*************************************cd_cmd_whitespace************************************
 *
-* Deal with the changing directory of a folder with whitespaces.
+* Deal with the changing of the directory of a folder with whitespaces.
 *
 * ARGUMENT :
 *   - args : an array containing all the args of the command line entered by the user
@@ -128,10 +128,14 @@ int main(int argc, char** argv){
     int returnvalue;
 
     char command[255];
-    char** args;
     
     pid_t pid;
     int status;
+    
+    char** args = malloc(sizeof(char*));
+
+    if(args == NULL)
+        return -1;
     
 
     while(!stop){
@@ -151,8 +155,7 @@ int main(int argc, char** argv){
         if(!strcmp(command,"\n"))
             continue;
 
-        //User enters a command line
-        char** args = malloc(sizeof(char*));
+        //User enters a command 
         split_command(command, args);
 
 
@@ -176,8 +179,12 @@ int main(int argc, char** argv){
             else if (args[1][0] == '"' || args[1][0] == '\''){
 
                 char c = args[1][0];
-                args[1] = strtok(args[1], (char*) c);
-                args[1] = cd_cmd_whitespace(args, c);
+                char* test = strtok(args[1], '\"');
+                
+                args[1] = strtok(args[1], (char *) c);
+                if(args[1] != NULL)
+                    args[1] = cd_cmd_whitespace(args, c);
+
 
            }
 
@@ -192,9 +199,7 @@ int main(int argc, char** argv){
 
             printf("%d",chdir(args[1]));
             continue;
-        }
-
-        
+        }        
 
 
         //The command isn't a built-in command
@@ -213,7 +218,10 @@ int main(int argc, char** argv){
         //This is the son
         if(pid == 0){ 
 
-            char** paths = malloc(sizeof(char*)); 
+            char** paths = malloc(sizeof(char*));
+            if(paths == NULL){
+                return -1;
+            }
 
             int nb_paths = get_paths(paths);
 
