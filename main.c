@@ -183,7 +183,7 @@ int main(int argc, char** argv){
                     *new_dir = '\0';
             }
 
-            //Case 3 : cd "My directory" ; cd 'My Directory'
+            //Case 3 : cd "My directory" or cd 'My Directory'
             else if (args[1][0] == '"' || args[1][0] == '\''){
 
                 char c = args[1][0]; // " or '
@@ -193,34 +193,6 @@ int main(int argc, char** argv){
 
                 //Removing last " or '
                 args[1] = cd_cmd_whitespace(args, c);
-
-
-                /*while(args[j] != NULL){ 
-
-                    if (args[j][strlen(args[j])-1] == c){
-                        args[j][strlen(args[j])-1] = 0;
-                    }
-                    
-                    if (j!=1)
-                        strcat(tmp_dir, " ");
-                    strcat(tmp_dir,args[j]);
-                    j++;
-
-                }
-
-                strcpy(args[1],tmp_dir);
-                */
-
-                /*Concatening the two arguments into 1
-                char tmp[strlen(args[1]) + strlen(args[2]) + 1];
-                strcpy(tmp,"");
-                sprintf(tmp,"%s %s",args[1],args[2]);
-                //printf("tmp 1 : %s\n",tmp);
-
-                strcpy(args[1],tmp);
-                //printf("args 1 : %s\n",args[1]);
-
-*/
 
            }
 
@@ -271,15 +243,12 @@ int main(int argc, char** argv){
                 strcat(path,paths[j]);
                 strcat(path,"/");
                 strcat(path,args[0]);
-                //printf("Path %d : %s \n",j,path);
 
 
                 j++;
             
-                //printf("access of path %d : %d \n",j,access(path,X_OK));
 
                 if(access(path,X_OK) == 0){
-                    //printf("Executable path: %s \n",path);
                     if(execv(path,args) == -1){
                         int errnum = errno;
                         perror("Instruction failed");
@@ -302,7 +271,7 @@ int main(int argc, char** argv){
             printf("%d",returnvalue);
             
         }
-        
+
     free(args);
     }
 
