@@ -42,7 +42,6 @@ char** split_command(char* command, char** args){
 
     while(token != NULL){
         args = realloc(args, (args_cnt+1)*sizeof(char*)); //Realloc space for each new argument
-
         args[args_cnt] = token;
         args_cnt++;
 
@@ -70,11 +69,19 @@ int get_paths(char** paths) {
 
     int nb_paths = 0;
 
+    char** ptr;
+
     char* path = strtok(pathstring,":"); //Parse the string for a path delimited by ":"
 
     while(path != NULL){
 
-        paths = realloc(paths,(nb_paths+1)*sizeof(char*)); //For each new found path, increase the array size
+        ptr = realloc(paths,(nb_paths+1)*sizeof(char*)); //For each new found path, increase the array size
+        
+        if(ptr == NULL)
+            free(paths);
+        else
+            paths = ptr;
+
         paths[nb_paths] = path;
         
 
@@ -100,10 +107,8 @@ char* cd_cmd_whitespace(char** args, char c){
 
     int j = 1;
 
-    char* tmp_dir;
-    strcpy(tmp_dir, getcwd(NULL,0));
-    
-    strcat(tmp_dir, "/");
+    char* temp_dir;
+    strcpy(temp_dir,"");
 
     while(args[j] != NULL){
 
@@ -111,11 +116,12 @@ char* cd_cmd_whitespace(char** args, char c){
             args[j][strlen(args[j])-1] = 0;
         
         if (j!=1)
-            strcat(tmp_dir, " ");
-        strcat(tmp_dir,args[j++]);
+            strcat(temp_dir, " ");
+        strcat(temp_dir,args[j]);
+        j++;
     }
 
-    return tmp_dir;
+    return temp_dir;
 
 }
 
@@ -127,18 +133,20 @@ int main(int argc, char** argv){
     
     int returnvalue;
 
-    char command[255];
+    char command[255]; strcpy(command,"");
     
     pid_t pid;
     int status;
     
-    char** args = malloc(sizeof(char*));
 
-    if(args == NULL)
-        return -1;
     
 
     while(!stop){
+
+        char** args = malloc(sizeof(char*));
+        
+        if(args == NULL)
+            return -1;
 
         //Prompt
         printf("> ");
@@ -156,7 +164,7 @@ int main(int argc, char** argv){
             continue;
 
         //User enters a command 
-        split_command(command, args);
+        args = split_command(command, args);
 
 
         //The command is cd
@@ -178,13 +186,41 @@ int main(int argc, char** argv){
             //Case 3 : cd "My directory" ; cd 'My Directory'
             else if (args[1][0] == '"' || args[1][0] == '\''){
 
-                char c = args[1][0];
-                char* test = strtok(args[1], '\"');
-                
-                args[1] = strtok(args[1], (char *) c);
-                if(args[1] != NULL)
-                    args[1] = cd_cmd_whitespace(args, c);
+                char c = args[1][0]; // " or '
 
+                //Removing first " or '
+                memmove(args[1], args[1]+1, strlen(args[1]));
+
+                //Removing last " or '
+                args[1] = cd_cmd_whitespace(args, c);
+
+
+                /*while(args[j] != NULL){ 
+
+                    if (args[j][strlen(args[j])-1] == c){
+                        args[j][strlen(args[j])-1] = 0;
+                    }
+                    
+                    if (j!=1)
+                        strcat(tmp_dir, " ");
+                    strcat(tmp_dir,args[j]);
+                    j++;
+
+                }
+
+                strcpy(args[1],tmp_dir);
+                */
+
+                /*Concatening the two arguments into 1
+                char tmp[strlen(args[1]) + strlen(args[2]) + 1];
+                strcpy(tmp,"");
+                sprintf(tmp,"%s %s",args[1],args[2]);
+                //printf("tmp 1 : %s\n",tmp);
+
+                strcpy(args[1],tmp);
+                //printf("args 1 : %s\n",args[1]);
+
+*/
 
            }
 
@@ -198,6 +234,9 @@ int main(int argc, char** argv){
 
 
             printf("%d",chdir(args[1]));
+            int errnum = errno;
+            fprintf(stderr, "Value of errno: %d\n",errno);
+            fprintf(stderr, "Error: %s \n",strerror(errnum));
             continue;
         }        
 
@@ -263,9 +302,10 @@ int main(int argc, char** argv){
             printf("%d",returnvalue);
             
         }
+        
+    free(args);
     }
 
-    free(args);
 
     return 0;
 
