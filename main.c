@@ -30,31 +30,18 @@ char* cd_cmd_whitespace(char** args, char c);
 int split_line(char* line, char** args){
 
     int args_cnt = 0;
-    char* token;
-
-    if(!args){
-        fprintf((stderr), "Allocation of args array failed.\n");
+    char* token =  malloc(256*sizeof(char));
+    
+    if(token == NULL)
         exit(1);
-    }
     
     token = strtok(line, "\n");
     token = strtok(line, " ");
 
     while(token != NULL){
 
-        token = malloc(256*sizeof(char));
-
-        if(token == NULL){
-            while(args_cnt >= 0){
-                free(args[args_cnt--]);
-            }
-
-            exit(1);
-        }
-
         args[args_cnt] = token;
-        args_cnt++;
-
+        args_cnt++;        
         token = strtok(NULL, " ");
     }
 
@@ -78,29 +65,35 @@ int split_line(char* line, char** args){
 int get_paths(char** paths) {
 
     char* pathstring = getenv("PATH"); //get the $PATH environment variable
-
     int nb_paths = 0;
 
-    char* path = strtok(pathstring,":"); //Parse the string for a path delimited by ":"
+    char* path = malloc(sizeof(char*)); 
+    if(path == NULL){
+        exit(1);
+    }
+
+    path = strtok(pathstring,":"); //Parse the string for a path delimited by ":"
 
     while(path != NULL){
+        paths[nb_paths] = path;
+        nb_paths++;
 
-        path = malloc(sizeof(char*)); 
-        
-        if(path == NULL){
+        char** tmp = realloc(paths,(nb_paths+1)*sizeof(char*));
+        if(tmp = NULL){
             while(nb_paths >= 0){
                 free(paths[nb_paths--]);
             }
-            
             free(paths);
             exit(1);
         }
-
-        paths[nb_paths] = path;
-        nb_paths++;    
+        else{
+            paths = tmp;
+            free(tmp);
+        }
 
         path = strtok(NULL,":"); //Parse the array for the next path delimited by ":"
     }
+
 
     return nb_paths;
 }
@@ -224,7 +217,7 @@ int main(int argc, char** argv){
         }        
 
 
-        //The line isn't a built-in line
+        //The command isn't a built-in command
         pid = fork();
 
         //Error
