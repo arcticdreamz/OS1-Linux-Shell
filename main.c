@@ -11,52 +11,50 @@
 /*************************************Prototypes*********************************************
 *
 ********************************************************************************************/
-char** split_command(char* command, char** args);
+int split_line(char* line, char** args);
 int getPaths(char** paths);
 char* cd_cmd_whitespace(char** args, char c);
 
 
 
-/*************************************split_command*****************************************
+/*************************************split_line*****************************************
 *
-* Split the command line entered by the user
+* Split the line line entered by the user
 *
 * ARGUMENT :
-*   - command : a string entered by the user as a command line
+*   - line : a string entered by the user as a line line
 *
 * RETURN : an array of strings reprensenting each token entered by the user
 *
 *******************************************************************************************/
-char** split_command(char* command, char** args){
+int split_line(char* line, char** args){
 
     int args_cnt = 0;
     char* token;
-    char** tmp;
 
     if(!args){
         fprintf((stderr), "Allocation of args array failed.\n");
         exit(1);
     }
     
-    token = strtok(command, "\n");
-    token = strtok(command, " ");
+    token = strtok(line, "\n");
+    token = strtok(line, " ");
 
     while(token != NULL){
 
-        tmp = realloc(args, (args_cnt+1)*sizeof(char*)); //Realloc space for each new argument
-        if(tmp == NULL)
-            free(args);
-        else
-            args = tmp;
+        token = malloc(256*sizeof(char));
+        if(token == NULL)
+            return -1;
 
         args[args_cnt] = token;
         args_cnt++;
 
         token = strtok(NULL, " ");
     }
+
     args[args_cnt] = (char*) NULL;
 
-    return args;
+    return 0;
 }
 
 
@@ -76,24 +74,21 @@ int get_paths(char** paths) {
 
     int nb_paths = 0;
 
-    char** ptr;
-
     char* path = strtok(pathstring,":"); //Parse the string for a path delimited by ":"
 
     while(path != NULL){
 
-        ptr = realloc(paths,(nb_paths+1)*sizeof(char*)); //For each new found path, increase the array size
+        path = malloc(sizeof(char*)); 
         
-        if(ptr == NULL)
+        if(path == NULL){
             free(paths);
-        else
-            paths = ptr;
+            exit(1);
+        }
 
         paths[nb_paths] = path;
-        
+        nb_paths++;    
 
         path = strtok(NULL,":"); //Parse the array for the next path delimited by ":"
-        nb_paths++;
     }
 
     return nb_paths;
@@ -105,7 +100,7 @@ int get_paths(char** paths) {
 * Deal with the changing of the directory of a folder with whitespaces.
 *
 * ARGUMENT :
-*   - args : an array containing all the args of the command line entered by the user
+*   - args : an array containing all the args of the line line entered by the user
 *
 * RETURN : the path of the directory to go
 *
@@ -137,11 +132,10 @@ char* cd_cmd_whitespace(char** args, char c){
 int main(int argc, char** argv){
 
     bool stop = false;
-    
     int returnvalue;
 
-    char command[256]; 
-    strcpy(command,"");
+    char line[65536]; 
+    char* args[256];
     
     pid_t pid;
     int status;
@@ -149,31 +143,34 @@ int main(int argc, char** argv){
 
     while(!stop){
 
-        char** args = malloc(sizeof(char*));
-        
-        if(args == NULL)
-            return -1;
+        //Clear the variables
+        strcpy(line,"");
+        memset(args, 0, sizeof(args));
 
         //Prompt
         printf("> ");
         fflush(stdout);
 
         //User wants to quit (using Ctrl+D or exit())
-        if(fgets(command,sizeof(command),stdin) == NULL || !strcmp(command,"exit\n")){
+        if(fgets(line,sizeof(line),stdin) == NULL || !strcmp(line,"exit\n")){
             printf("\n");
             stop = true;
             break;
         }
 
         //User presses "Enter"
-        if(!strcmp(command,"\n"))
+        if(!strcmp(line,"\n"))
             continue;
 
-        //User enters a command 
-        args = split_command(command, args);
+        //User enters a line 
+        if(split_line(line, args) != 0){
+            free(args);
+            printf("Allocation in split went wrong\n");
+            exit(1);
+        }
 
 
-        //The command is cd
+        //The line is cd
         if(!strcmp(args[0], "cd")){
 
             // Case 1 : cd
@@ -219,7 +216,7 @@ int main(int argc, char** argv){
         }        
 
 
-        //The command isn't a built-in command
+        //The line isn't a built-in line
         pid = fork();
 
         //Error
