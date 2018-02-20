@@ -43,8 +43,14 @@ int split_line(char* line, char** args){
     while(token != NULL){
 
         token = malloc(256*sizeof(char));
-        if(token == NULL)
-            return -1;
+
+        if(token == NULL){
+            while(args_cnt >= 0){
+                free(args[args_cnt--]);
+            }
+
+            exit(1);
+        }
 
         args[args_cnt] = token;
         args_cnt++;
@@ -54,7 +60,8 @@ int split_line(char* line, char** args){
 
     args[args_cnt] = (char*) NULL;
 
-    return 0;
+    return args_cnt;
+
 }
 
 
@@ -81,6 +88,10 @@ int get_paths(char** paths) {
         path = malloc(sizeof(char*)); 
         
         if(path == NULL){
+            while(nb_paths >= 0){
+                free(paths[nb_paths--]);
+            }
+            
             free(paths);
             exit(1);
         }
@@ -119,6 +130,7 @@ char* cd_cmd_whitespace(char** args, char c){
         
         if (j!=1)
             strcat(temp_dir, " ");
+
         strcat(temp_dir,args[j]);
         j++;
     }
@@ -163,11 +175,7 @@ int main(int argc, char** argv){
             continue;
 
         //User enters a line 
-        if(split_line(line, args) != 0){
-            free(args);
-            printf("Allocation in split went wrong\n");
-            exit(1);
-        }
+        int nb_args = split_line(line, args);
 
         //The command is cd
         if(!strcmp(args[0], "cd")){
@@ -271,7 +279,11 @@ int main(int argc, char** argv){
                             fprintf(stderr, "Error: %s \n",strerror(errnum));
                         }
 
+                        while(nb_paths >= 0){
+                            free(paths[nb_paths--]);
+                        }
                         free(paths);
+
                         break;
                     }
                 }
@@ -288,7 +300,9 @@ int main(int argc, char** argv){
             
         }
 
-    free(args);
+        while(nb_args >= 0){
+            free(args[nb_args--]);
+        }
 
     }
 
