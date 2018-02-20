@@ -72,19 +72,6 @@ int get_paths(char** paths) {
     while(path != NULL){
         paths[nb_paths] = path;
         nb_paths++;
-
-        char** tmp = realloc(paths,(nb_paths+1)*sizeof(char*));
-        if(tmp == NULL){
-            while(nb_paths >= 0){
-                free(paths[nb_paths--]);
-            }
-            free(paths);
-            exit(1);
-        }
-        else{
-            paths = tmp;
-        }
-
         path = strtok(NULL,":"); //Parse the array for the next path delimited by ":"
     }
 
@@ -239,7 +226,7 @@ int main(int argc, char** argv){
             //Relative path -- Need to check the $PATH environment variable
             else{
 
-                char** paths = malloc(sizeof(char*));
+                char** paths = malloc(256*sizeof(char*));
                 if(paths == NULL)
                     return -1;
                 
