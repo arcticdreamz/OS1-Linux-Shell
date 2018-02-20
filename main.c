@@ -133,7 +133,7 @@ int main(int argc, char** argv){
     
     int returnvalue;
 
-    char command[255]; strcpy(command,"");
+    char command[256]; strcpy(command,"");
     
     pid_t pid;
     int status;
