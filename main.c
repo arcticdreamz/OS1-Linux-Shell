@@ -67,19 +67,14 @@ int get_paths(char** paths) {
     char* pathstring = getenv("PATH"); //get the $PATH environment variable
     int nb_paths = 0;
 
-    char* path = malloc(sizeof(char*)); 
-    if(path == NULL){
-        exit(1);
-    }
-
-    path = strtok(pathstring,":"); //Parse the string for a path delimited by ":"
+    char* path = strtok(pathstring,":"); //Parse the string for a path delimited by ":"
 
     while(path != NULL){
         paths[nb_paths] = path;
         nb_paths++;
 
         char** tmp = realloc(paths,(nb_paths+1)*sizeof(char*));
-        if(tmp = NULL){
+        if(tmp == NULL){
             while(nb_paths >= 0){
                 free(paths[nb_paths--]);
             }
@@ -88,7 +83,6 @@ int get_paths(char** paths) {
         }
         else{
             paths = tmp;
-            free(tmp);
         }
 
         path = strtok(NULL,":"); //Parse the array for the next path delimited by ":"
