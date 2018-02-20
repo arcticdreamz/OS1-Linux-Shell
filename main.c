@@ -32,9 +32,6 @@ int split_line(char* line, char** args){
     int args_cnt = 0;
     char* token;
     
-    if(token == NULL)
-        exit(1);
-    
     token = strtok(line, "\n");
     token = strtok(line, " ");
 
@@ -190,10 +187,6 @@ int main(int argc, char** argv){
 
 
             printf("\n%d",chdir(args[1]));
-            /*int errnum = errno;
-            fprintf(stderr, "Value of errno: %d\n",errno);
-            fprintf(stderr, "Error: %s \n",strerror(errnum));
-            */
             continue;
         }        
 
@@ -208,7 +201,7 @@ int main(int argc, char** argv){
             perror("Process creation failed");
             fprintf(stderr, "Value of errno: %d\n",errno);
             fprintf(stderr, "Error: %s \n",strerror(errnum));
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
         //This is the son
@@ -223,6 +216,7 @@ int main(int argc, char** argv){
                     fprintf(stderr, "Error: %s \n",strerror(errnum));
                 }
             }
+
             //Relative path -- Need to check the $PATH environment variable
             else{
 
@@ -232,6 +226,7 @@ int main(int argc, char** argv){
 
                 int j = 0;
 
+                //Taking a path from paths[] and concatenating with the command
                 while(j < nb_paths){
                     char path[256] = "";
                     strcat(path,paths[j]);
@@ -255,7 +250,7 @@ int main(int argc, char** argv){
                 }
             }
 
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
         //This is the father
