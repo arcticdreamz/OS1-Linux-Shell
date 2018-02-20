@@ -189,7 +189,7 @@ int main(int argc, char** argv){
             }
 
 
-            printf("%d",chdir(args[1]));
+            printf("\n%d",chdir(args[1]));
             /*int errnum = errno;
             fprintf(stderr, "Value of errno: %d\n",errno);
             fprintf(stderr, "Error: %s \n",strerror(errnum));
@@ -226,10 +226,7 @@ int main(int argc, char** argv){
             //Relative path -- Need to check the $PATH environment variable
             else{
 
-                char** paths = malloc(256*sizeof(char*));
-                if(paths == NULL)
-                    return -1;
-                
+                char* paths[256];              
 
                 int nb_paths = get_paths(paths);
 
@@ -252,11 +249,6 @@ int main(int argc, char** argv){
                             fprintf(stderr, "Value of errno: %d\n",errno);
                             fprintf(stderr, "Error: %s \n",strerror(errnum));
                         }
-
-                        while(nb_paths >= 0){
-                            free(paths[nb_paths--]);
-                        }
-                        free(paths);
 
                         break;
                     }
