@@ -30,7 +30,7 @@ char* cd_cmd_whitespace(char** args, char c);
 int split_line(char* line, char** args){
 
     int args_cnt = 0;
-    char* token =  malloc(256*sizeof(char));
+    char* token;
     
     if(token == NULL)
         exit(1);
@@ -274,9 +274,9 @@ int main(int argc, char** argv){
             
         }
 
-        while(nb_args >= 0){
+ /*       while(nb_args >= 0){
             free(args[nb_args--]);
-        }
+        }*/
 
     }
 
