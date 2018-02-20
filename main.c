@@ -31,6 +31,7 @@ char** split_command(char* command, char** args){
 
     int args_cnt = 0;
     char* token;
+    char** tmp;
 
     if(!args){
         fprintf((stderr), "Allocation of args array failed.\n");
@@ -41,13 +42,19 @@ char** split_command(char* command, char** args){
     token = strtok(command, " ");
 
     while(token != NULL){
-        args = realloc(args, (args_cnt+1)*sizeof(char*)); //Realloc space for each new argument
+
+        tmp = realloc(args, (args_cnt+1)*sizeof(char*)); //Realloc space for each new argument
+        if(tmp == NULL)
+            free(args);
+        else
+            args = tmp;
+
         args[args_cnt] = token;
         args_cnt++;
 
         token = strtok(NULL, " ");
     }
-    args[args_cnt] = (char *) NULL;
+    args[args_cnt] = (char*) NULL;
 
     return args;
 }
@@ -133,12 +140,11 @@ int main(int argc, char** argv){
     
     int returnvalue;
 
-    char command[256]; strcpy(command,"");
+    char command[256]; 
+    strcpy(command,"");
     
     pid_t pid;
     int status;
-    
-
     
 
     while(!stop){
