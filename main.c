@@ -44,8 +44,10 @@ char** split_command(char* command, char** args){
     while(token != NULL){
 
         tmp = realloc(args, (args_cnt+1)*sizeof(char*)); //Realloc space for each new argument
-        if(tmp == NULL)
+        if(tmp == NULL){
             free(args);
+        }
+
         else
             args = tmp;
 
@@ -65,7 +67,7 @@ char** split_command(char* command, char** args){
 * Split the full path into all possible paths and get the number of total paths
 *
 * ARGUMENT :
-*   - paths : an array to contain all the paths
+*   - paths : an array that will contain all the paths
 *
 * RETURN : the number of paths
 *
@@ -86,6 +88,7 @@ int get_paths(char** paths) {
         
         if(ptr == NULL)
             free(paths);
+
         else
             paths = ptr;
 
@@ -173,6 +176,7 @@ int main(int argc, char** argv){
         args = split_command(command, args);
 
 
+
         //The command is cd
         if(!strcmp(args[0], "cd")){
 
@@ -212,9 +216,10 @@ int main(int argc, char** argv){
 
 
             printf("%d",chdir(args[1]));
-            int errnum = errno;
+            /*int errnum = errno;
             fprintf(stderr, "Value of errno: %d\n",errno);
             fprintf(stderr, "Error: %s \n",strerror(errnum));
+            */
             continue;
         }        
 
@@ -233,38 +238,51 @@ int main(int argc, char** argv){
         }
 
         //This is the son
-        if(pid == 0){ 
+        if(pid == 0){
 
-            char** paths = malloc(sizeof(char*));
-            if(paths == NULL){
-                return -1;
-            }
-
-            int nb_paths = get_paths(paths);
-
-            int j = 0;
-
-            while(j < nb_paths){
-                char path[256] = "";
-                strcat(path,paths[j]);
-                strcat(path,"/");
-                strcat(path,args[0]);
-
-
-                j++;
-            
-
-                if(access(path,X_OK) == 0){
-                    if(execv(path,args) == -1){
-                        int errnum = errno;
-                        perror("Instruction failed");
-                        fprintf(stderr, "Value of errno: %d\n",errno);
-                        fprintf(stderr, "Error: %s \n",strerror(errnum));
-                    }
-                    free(paths);
-                    break;
+            //Absolute path of command
+            if(args[0][0] == '/'){
+                if(execv(args[0],args) == -1){
+                    int errnum = errno;
+                    perror("Instruction failed");
+                    fprintf(stderr, "Value of errno: %d\n",errno);
+                    fprintf(stderr, "Error: %s \n",strerror(errnum));
                 }
+            }
+            //Relative path -- Need to check the $PATH environment variable
+            else{
 
+                char** paths = malloc(sizeof(char*));
+                if(paths == NULL)
+                    return -1;
+                
+
+                int nb_paths = get_paths(paths);
+
+                int j = 0;
+
+                while(j < nb_paths){
+                    char path[256] = "";
+                    strcat(path,paths[j]);
+                    strcat(path,"/");
+                    strcat(path,args[0]);
+
+
+                    j++;
+                
+                    //Check if path contains the command to execute
+                    if(access(path,X_OK) == 0){
+                        if(execv(path,args) == -1){
+                            int errnum = errno;
+                            perror("Instruction failed");
+                            fprintf(stderr, "Value of errno: %d\n",errno);
+                            fprintf(stderr, "Error: %s \n",strerror(errnum));
+                        }
+
+                        free(paths);
+                        break;
+                    }
+                }
             }
 
             exit(1);
@@ -274,13 +292,13 @@ int main(int argc, char** argv){
         else{
             wait(&status);
             returnvalue = WEXITSTATUS(status);
-            printf("%d",returnvalue);
+            printf("\n%d",returnvalue);
             
         }
 
     free(args);
-    }
 
+    }
 
     return 0;
 
