@@ -1,3 +1,10 @@
+/******************************************************************************************
+*
+* Antoine Louis & Tom Crasset
+*
+* Operating systems : Projet 1 - shell
+*******************************************************************************************/
+
 #include <sys/types.h> 
 #include <sys/wait.h>
 #include <stdlib.h>
@@ -8,9 +15,7 @@
 #include <errno.h>
 
 
-/*************************************Prototypes*********************************************
-*
-********************************************************************************************/
+/*************************************Prototypes*********************************************/
 int split_line(char* line, char** args);
 int getPaths(char** paths);
 void cd_whitespace_dir(char** args);
@@ -76,17 +81,17 @@ int get_paths(char** paths) {
 }
 
 
-/*************************************cd_whitespace_dir************************************
+/*************************************convert_whitespace_dir************************************
 *
-* Deal with the changing of the directory of a folder with whitespaces.
+* Convert a directory/folder with special characters to a directory/folder with whitespaces
 *
 * ARGUMENT :
-*   - args : an array containing all the args of the line line entered by the user
+*   - args : an array containing all the args of the line  entered by the user
 *
-* RETURN : the path of the directory to go
+* NB: it will clear all args except args[0] and args[1]
 *
 *******************************************************************************************/
-void cd_whitespace_dir(char** args){
+void convert_whitespace_dir(char** args){
 
     int j=1;
     char path[256];
@@ -94,10 +99,12 @@ void cd_whitespace_dir(char** args){
     char* token;
     char delimiters[] = "\"\'\\";
 
+
     while(args[j] != NULL){
 
         //Get the first token delimited by one of the delimiters
         token = strtok(args[j], delimiters);
+
 
         while(token != NULL){
             //Add this token to the path
@@ -112,8 +119,11 @@ void cd_whitespace_dir(char** args){
         j++;
     }
 
-    //Remove the last whitespace
+    //Removing the last whitespace
     path[strlen(path)-1] = 0;
+
+    //Cleaning all arguments except cmd and directory (args[0] and args[1])
+    memset(&args[2], 0, sizeof(args)-2);
     
     //Copy the path to the unique argument of cd
     strcpy(args[1], path);
@@ -180,7 +190,7 @@ int main(int argc, char** argv){
             */
             if(nb_args > 2){ //Means that there is/are (a) folder(s) with whitespace
 
-                cd_whitespace_dir(args);
+                convert_whitespace_dir(args);
             }
 
             
@@ -222,17 +232,21 @@ int main(int argc, char** argv){
 
                 int nb_paths = get_paths(paths);
 
-                int j = 0;
+                int j = 1;
+
+                /*In the case of commands like mkdir/rmdir, if the first argument is a directory with whitespaces ("a b", 'a b', a\ b),
+                  we need to change this directory in something understandable for the shell*/
+                if(nb_args > 2){
+                    if(args[1][0] == '\"' || args[1][0] == '\'' || args[1][strlen(args[1])-1] == '\\')
+                        convert_whitespace_dir(args);
+                }
 
                 //Taking a path from paths[] and concatenating with the command
-                while(j < nb_paths){
+                for(j = 0; j < nb_paths; j++){
                     char path[256] = "";
                     strcat(path,paths[j]);
                     strcat(path,"/");
                     strcat(path,args[0]);
-
-
-                    j++;
                 
                     //Check if path contains the command to execute
                     if(access(path,X_OK) == 0){
@@ -262,5 +276,4 @@ int main(int argc, char** argv){
     }
 
     return 0;
-
 }
