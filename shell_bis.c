@@ -232,7 +232,8 @@ int main(int argc, char** argv){
                 /*In the case of commands like mkdir/rmdir, if the first argument is a directory with whitespaces ("a b", 'a b', a\ b),
                   we need to change this directory in something understandable for the shell*/
                 if(nb_args > 2){
-                    convert_whitespace_dir(args);
+                    if(args[1][0] == '\"' || args[1][0] == '\'')
+                        convert_whitespace_dir(args);
                 }
 
                 //Taking a path from paths[] and concatenating with the command
