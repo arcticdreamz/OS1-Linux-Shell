@@ -17,8 +17,8 @@
 
 /*************************************Prototypes*********************************************/
 int split_line(char* line, char** args);
-int getPaths(char** paths);
-void cd_whitespace_dir(char** args);
+int get_paths(char** paths);
+void convert_whitespace_dir(char** args);
 
 
 
@@ -81,6 +81,7 @@ int get_paths(char** paths) {
 }
 
 
+
 /*************************************convert_whitespace_dir************************************
 *
 * Convert a directory/folder with special characters to a directory/folder with whitespaces
@@ -128,6 +129,7 @@ void convert_whitespace_dir(char** args){
     //Copy the path to the unique argument of cd
     strcpy(args[1], path);
 }
+
 
 
 
