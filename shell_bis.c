@@ -13,7 +13,7 @@
 ********************************************************************************************/
 int split_line(char* line, char** args);
 int getPaths(char** paths);
-char* cd_cmd_whitespace(char** args, char c);
+char* cd_whitespace_dir(char** args);
 
 
 
@@ -29,7 +29,7 @@ char* cd_cmd_whitespace(char** args, char c);
 *******************************************************************************************/
 int split_line(char* line, char** args){
 
-    int args_cnt = 0;
+    int nb_args = 0;
     char* token;
     
     token = strtok(line, "\n");
@@ -37,14 +37,14 @@ int split_line(char* line, char** args){
 
     while(token != NULL){
 
-        args[args_cnt] = token;
-        args_cnt++;        
+        args[nb_args] = token;
+        nb_args++;        
         token = strtok(NULL, " ");
     }
 
-    args[args_cnt] = (char*) NULL;
+    args[nb_args] = (char*) NULL;
 
-    return args_cnt;
+    return nb_args;
 
 }
 
@@ -77,7 +77,7 @@ int get_paths(char** paths) {
 }
 
 
-/*************************************cd_cmd_whitespace************************************
+/*************************************cd_whitespace_dir************************************
 *
 * Deal with the changing of the directory of a folder with whitespaces.
 *
@@ -87,28 +87,39 @@ int get_paths(char** paths) {
 * RETURN : the path of the directory to go
 *
 *******************************************************************************************/
-char* cd_cmd_whitespace(char** args, char c){
+char* cd_whitespace_dir(char** args){
 
-    int j = 1;
-
+    int j=1;
     char* temp_dir;
     strcpy(temp_dir,"");
+    char* token;
+    char* delimiters = "\"\'\\";
 
     while(args[j] != NULL){
 
-        if (args[j][strlen(args[j])-1] == c)
-            args[j][strlen(args[j])-1] = 0;
-        
-        if (j!=1)
-            strcat(temp_dir, " ");
+        //Get the first token delimited by one of the delimiters
+        token = strtok(args[j], delimiters);
 
-        strcat(temp_dir,args[j]);
+        while(token != NULL){
+            //Add this token to the path
+            strcat(temp_dir, token);
+            //Get the next token
+            token = strtok(NULL, delimiters);
+        }
+
+        //Add a whitespace
+        strcat(temp_dir, " ");
+
+        //Clean the current cell
+        memset(args[j], 0, 256);
+
         j++;
     }
-
+    
     return temp_dir;
 
 }
+
 
 
 /******************************************main**********************************************/
@@ -163,32 +174,15 @@ int main(int argc, char** argv){
                     *new_dir = '\0';
             }
 
-            //Case 3 : cd "My directory" or cd 'My Directory'
-            else if (args[1][0] == '"' || args[1][0] == '\''){
 
-                char c = args[1][0]; // " or '
-
-                //Removing first " or '
-                memmove(args[1], args[1]+1, strlen(args[1]));
-
-                //Removing last " or '
-                args[1] = cd_cmd_whitespace(args, c);
-
-           }
-
-            //Case 4 : cd My\ Directory
-            else if (args[1][strlen(args[1])-1] == '\\'){
-
-                char c = args[1][strlen(args[1])-1];
-                args[1] = cd_cmd_whitespace(args, c);
-
-            }
-
-            /*Case 5 :  cd FirstDir/"My directory"/DestDir
+            /*Case 3 :  cd FirstDir/"My directory"/DestDir
                         cd FirstDir/'My directory'/DestDir
                         cd FirstDir/My\ directory/DestDir
             */
+            if(nb_args > 2){ //Means that there is/are (a) folder(s) with whitespace
 
+                args[1] = cd_whitespace_dir(args);
+            }
 
             printf("\n%d",chdir(args[1]));
             continue;
@@ -265,14 +259,8 @@ int main(int argc, char** argv){
             
         }
 
- /*       while(nb_args >= 0){
-            free(args[nb_args--]);
-        }*/
-
     }
 
     return 0;
 
 }
-
-
