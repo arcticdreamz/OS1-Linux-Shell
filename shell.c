@@ -136,7 +136,6 @@ int main(int argc, char** argv){
 
         //User wants to quit (using Ctrl+D or exit())
         if(fgets(line,sizeof(line),stdin) == NULL || !strcmp(line,"exit\n")){
-            printf("\n");
             stop = true;
             break;
         }
