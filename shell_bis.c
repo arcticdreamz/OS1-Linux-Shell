@@ -1,3 +1,10 @@
+/******************************************************************************************
+*
+* Antoine Louis & Tom Crasset
+*
+* Operating systems : Projet 1 - shell
+*******************************************************************************************/
+
 #include <sys/types.h> 
 #include <sys/wait.h>
 #include <stdlib.h>
@@ -8,9 +15,7 @@
 #include <errno.h>
 
 
-/*************************************Prototypes*********************************************
-*
-********************************************************************************************/
+/*************************************Prototypes*********************************************/
 int split_line(char* line, char** args);
 int getPaths(char** paths);
 void cd_whitespace_dir(char** args);
@@ -83,7 +88,7 @@ int get_paths(char** paths) {
 * ARGUMENT :
 *   - args : an array containing all the args of the line  entered by the user
 *
-* SIDE EFFECTS : will clear all args except args[0] and args[1]
+* NB: it will clear all args except args[0] and args[1]
 *
 *******************************************************************************************/
 void convert_whitespace_dir(char** args){
@@ -117,7 +122,7 @@ void convert_whitespace_dir(char** args){
     //Removing the last whitespace
     path[strlen(path)-1] = 0;
 
-    //Cleaning all others arguments
+    //Cleaning all arguments except cmd and directory (args[0] and args[1])
     memset(&args[2], 0, sizeof(args)-2);
     
     //Copy the path to the unique argument of cd
@@ -232,7 +237,7 @@ int main(int argc, char** argv){
                 /*In the case of commands like mkdir/rmdir, if the first argument is a directory with whitespaces ("a b", 'a b', a\ b),
                   we need to change this directory in something understandable for the shell*/
                 if(nb_args > 2){
-                    if(args[1][0] == '\"' || args[1][0] == '\'')
+                    if(args[1][0] == '\"' || args[1][0] == '\'' || args[1][strlen(args[1])-1] == '\\')
                         convert_whitespace_dir(args);
                 }
 
@@ -271,5 +276,4 @@ int main(int argc, char** argv){
     }
 
     return 0;
-
 }
