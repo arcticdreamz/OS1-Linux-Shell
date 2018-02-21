@@ -93,7 +93,7 @@ char* cd_whitespace_dir(char** args){
     char* temp_dir;
     strcpy(temp_dir,"");
     char* token;
-    char* delimiters = "\"\'\\";
+    char delimiters[] = "\"\'\\";
 
     while(args[j] != NULL){
 
@@ -111,7 +111,7 @@ char* cd_whitespace_dir(char** args){
         strcat(temp_dir, " ");
 
         //Clean the current cell
-        memset(args[j], 0, 256);
+        memset(args[j], 0, sizeof(args[j]));
 
         j++;
     }
