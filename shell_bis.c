@@ -76,7 +76,7 @@ int get_paths(char** paths) {
 }
 
 
-/*************************************convertPath************************************
+/*************************************convert_whitespace_dir************************************
 *
 * Convert a directory/folder with special characters to a directory/folder with whitespaces
 *
@@ -86,7 +86,7 @@ int get_paths(char** paths) {
 * SIDE EFFECTS : will clear all args except args[0] and args[1]
 *
 *******************************************************************************************/
-void convertPath(char** args){
+void convert_whitespace_dir(char** args){
 
     int j=1;
     char path[256];
@@ -180,7 +180,7 @@ int main(int argc, char** argv){
             */
             if(nb_args > 2){ //Means that there is/are (a) folder(s) with whitespace
 
-                convertPath(args);
+                convert_whitespace_dir(args);
             }
 
             
@@ -224,9 +224,10 @@ int main(int argc, char** argv){
 
                 int j = 1;
 
-                //If the first argument is a path ("..."), like mkdir/rmdir
-                if(args[1][0] == '\"'){
-                    convertPath(args);
+                /*In the case of commands like mkdir/rmdir, if the first argument is a directory with whitespaces ("a b", 'a b', a\ b),
+                  we need to change this directory in something understandable for the shell*/
+                if(nb_args > 2){
+                    convert_whitespace_dir(args);
                 }
 
                 //Taking a path from paths[] and concatenating with the command
