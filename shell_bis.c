@@ -224,7 +224,7 @@ int main(int argc, char** argv){
 
                 int j = 1;
 
-                //If the argument is a path ("..."), like mkdir/rmdir
+                //If the first argument is a path ("..."), like mkdir/rmdir
                 if(args[1][0] == '\"'){
                     convertPath(args);
                 }

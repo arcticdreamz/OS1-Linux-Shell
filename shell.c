@@ -76,17 +76,17 @@ int get_paths(char** paths) {
 }
 
 
-/*************************************convertPath************************************
+/*************************************cd_whitespace_dir************************************
 *
-* Convert a directory/folder with special characters to a directory/folder with whitespaces
+* Deal with the changing of the directory of a folder with whitespaces.
 *
 * ARGUMENT :
-*   - args : an array containing all the args of the line  entered by the user
+*   - args : an array containing all the args of the line line entered by the user
 *
-* SIDE EFFECTS : will clear all args except args[0] and args[1]
+* RETURN : the path of the directory to go
 *
 *******************************************************************************************/
-void convertPath(char** args){
+void cd_whitespace_dir(char** args){
 
     int j=1;
     char path[256];
@@ -98,7 +98,6 @@ void convertPath(char** args){
 
         //Get the first token delimited by one of the delimiters
         token = strtok(args[j], delimiters);
-
 
         while(token != NULL){
             //Add this token to the path
@@ -112,7 +111,8 @@ void convertPath(char** args){
 
         j++;
     }
-    //Removing the last whitespace
+
+    //Remove the last whitespace
     path[strlen(path)-1] = 0;
     
     //Copy the path to the unique argument of cd
@@ -180,7 +180,7 @@ int main(int argc, char** argv){
             */
             if(nb_args > 2){ //Means that there is/are (a) folder(s) with whitespace
 
-                convertPath(args);
+                cd_whitespace_dir(args);
             }
 
             
@@ -222,19 +222,17 @@ int main(int argc, char** argv){
 
                 int nb_paths = get_paths(paths);
 
-                int j = 1;
-
-                //If the argument is a path ("..."), like mkdir/rmdir
-                if(args[1][0] == '\"'){
-                    convertPath(args);
-                }
+                int j = 0;
 
                 //Taking a path from paths[] and concatenating with the command
-                for(j = 0; j < nb_paths; j++){
+                while(j < nb_paths){
                     char path[256] = "";
                     strcat(path,paths[j]);
                     strcat(path,"/");
                     strcat(path,args[0]);
+
+
+                    j++;
                 
                     //Check if path contains the command to execute
                     if(access(path,X_OK) == 0){
