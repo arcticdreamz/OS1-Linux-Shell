@@ -94,6 +94,7 @@ void convert_whitespace_dir(char** args){
     char* token;
     char delimiters[] = "\"\'\\";
 
+
     while(args[j] != NULL){
 
         //Get the first token delimited by one of the delimiters
@@ -112,8 +113,12 @@ void convert_whitespace_dir(char** args){
 
         j++;
     }
+
     //Removing the last whitespace
     path[strlen(path)-1] = 0;
+
+    //Cleaning all others arguments
+    memset(&args[2], 0, sizeof(args)-2);
     
     //Copy the path to the unique argument of cd
     strcpy(args[1], path);
