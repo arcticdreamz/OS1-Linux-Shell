@@ -96,16 +96,17 @@ char* cd_cmd_whitespace(char** args, char c){
 
     while(args[j] != NULL){
 
-        if (args[j][strlen(args[j])-1] == c)
-            args[j][strlen(args[j])-1] = 0;
-        
         if (j!=1)
             strcat(temp_dir, " ");
 
+        if (args[j][strlen(args[j])-1] == c)
+            args[j][strlen(args[j])-1] = 0;
+        
         strcat(temp_dir,args[j]);
         j++;
     }
 
+    printf("%s\n",temp_dir);
     return temp_dir;
 
 }
@@ -184,11 +185,6 @@ int main(int argc, char** argv){
 
             }
 
-            /*Case 5 :  cd FirstDir/"My directory"/DestDir
-                        cd FirstDir/'My directory'/DestDir
-                        cd FirstDir/My\ directory/DestDir
-            */
-
 
             printf("\n%d",chdir(args[1]));
             continue;
@@ -264,11 +260,6 @@ int main(int argc, char** argv){
             printf("\n%d",returnvalue);
             
         }
-
- /*       while(nb_args >= 0){
-            free(args[nb_args--]);
-        }*/
-
     }
 
     return 0;

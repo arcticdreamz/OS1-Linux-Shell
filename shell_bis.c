@@ -13,7 +13,7 @@
 ********************************************************************************************/
 int split_line(char* line, char** args);
 int getPaths(char** paths);
-char* cd_whitespace_dir(char** args);
+void cd_whitespace_dir(char** args);
 
 
 
@@ -87,11 +87,11 @@ int get_paths(char** paths) {
 * RETURN : the path of the directory to go
 *
 *******************************************************************************************/
-char* cd_whitespace_dir(char** args){
+void cd_whitespace_dir(char** args){
 
     int j=1;
-    char* temp_dir;
-    strcpy(temp_dir,"");
+    char path[256];
+    strcpy(path,"");
     char* token;
     char delimiters[] = "\"\'\\";
 
@@ -102,13 +102,13 @@ char* cd_whitespace_dir(char** args){
 
         while(token != NULL){
             //Add this token to the path
-            strcat(temp_dir, token);
+            strcat(path, token);
             //Get the next token
             token = strtok(NULL, delimiters);
         }
 
         //Add a whitespace
-        strcat(temp_dir, " ");
+        strcat(path, " ");
 
         //Clean the current cell
         memset(args[j], 0, sizeof(args[j]));
@@ -116,8 +116,8 @@ char* cd_whitespace_dir(char** args){
         j++;
     }
     
-    return temp_dir;
-
+    args[1] = path;
+    printf("%s\n", args[1]);
 }
 
 
@@ -181,7 +181,7 @@ int main(int argc, char** argv){
             */
             if(nb_args > 2){ //Means that there is/are (a) folder(s) with whitespace
 
-                args[1] = cd_whitespace_dir(args);
+                cd_whitespace_dir(args);
             }
 
             printf("\n%d",chdir(args[1]));
