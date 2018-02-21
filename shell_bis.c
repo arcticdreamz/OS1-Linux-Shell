@@ -72,7 +72,6 @@ int get_paths(char** paths) {
         path = strtok(NULL,":"); //Parse the array for the next path delimited by ":"
     }
 
-
     return nb_paths;
 }
 
@@ -100,6 +99,7 @@ void cd_whitespace_dir(char** args){
         //Get the first token delimited by one of the delimiters
         token = strtok(args[j], delimiters);
 
+
         while(token != NULL){
             //Add this token to the path
             strcat(path, token);
@@ -110,14 +110,13 @@ void cd_whitespace_dir(char** args){
         //Add a whitespace
         strcat(path, " ");
 
-        //Clean the current cell
-        memset(args[j], 0, sizeof(args[j]));
-
         j++;
     }
+    //Removing the last whitespace
+    path[strlen(path)-1] = 0;
     
-    args[1] = path;
-    printf("%s\n", args[1]);
+    //Copy the path to the unique argument of cd
+    strcpy(args[1], path);
 }
 
 
@@ -161,7 +160,7 @@ int main(int argc, char** argv){
         //The command is cd
         if(!strcmp(args[0], "cd")){
 
-            // Case 1 : cd
+            // Case 1 : cd or cd ~
             if(args[1] == NULL || !strcmp(args[1],"~"))
                 args[1] = getenv("HOME");
 
@@ -184,6 +183,7 @@ int main(int argc, char** argv){
                 cd_whitespace_dir(args);
             }
 
+            
             printf("\n%d",chdir(args[1]));
             continue;
         }        

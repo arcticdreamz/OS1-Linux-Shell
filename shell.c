@@ -13,7 +13,7 @@
 ********************************************************************************************/
 int split_line(char* line, char** args);
 int getPaths(char** paths);
-char* cd_cmd_whitespace(char** args, char c);
+void cd_cmd_whitespace(char** args, char c);
 
 
 
@@ -87,11 +87,11 @@ int get_paths(char** paths) {
 * RETURN : the path of the directory to go
 *
 *******************************************************************************************/
-char* cd_cmd_whitespace(char** args, char c){
+void cd_cmd_whitespace(char** args, char c){
 
     int j = 1;
 
-    char* temp_dir;
+    char temp_dir[256];
     strcpy(temp_dir,"");
 
     while(args[j] != NULL){
@@ -107,7 +107,7 @@ char* cd_cmd_whitespace(char** args, char c){
     }
 
     printf("%s\n",temp_dir);
-    return temp_dir;
+    args[1] = temp_dir;
 
 }
 
@@ -151,7 +151,7 @@ int main(int argc, char** argv){
         //The command is cd
         if(!strcmp(args[0], "cd")){
 
-            // Case 1 : cd
+            // Case 1 : cd or cd ~
             if(args[1] == NULL || !strcmp(args[1],"~"))
                 args[1] = getenv("HOME");
 
@@ -173,7 +173,7 @@ int main(int argc, char** argv){
                 memmove(args[1], args[1]+1, strlen(args[1]));
 
                 //Removing last " or '
-                args[1] = cd_cmd_whitespace(args, c);
+                cd_cmd_whitespace(args, c);
 
            }
 
@@ -181,7 +181,7 @@ int main(int argc, char** argv){
             else if (args[1][strlen(args[1])-1] == '\\'){
 
                 char c = args[1][strlen(args[1])-1];
-                args[1] = cd_cmd_whitespace(args, c);
+                cd_cmd_whitespace(args, c);
 
             }
 
